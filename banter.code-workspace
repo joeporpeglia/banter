@@ -1,0 +1,18 @@
+{
+  "folders": [
+    {
+      "path": "client"
+    },
+    {
+      "path": "server"
+    },
+    {
+      "path": "api"
+    }
+  ],
+  "settings": {
+    "npm.packageManager": "yarn",
+    "eslint.packageManager": "yarn",
+    "prettier.packageManager": "yarn"
+  }
+}
