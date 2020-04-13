@@ -1,4 +1,4 @@
-import React, { Suspense, PropsWithChildren, useRef, useMemo } from 'react';
+import React, { Suspense, PropsWithChildren, useMemo } from 'react';
 import {
   CSSReset,
   Heading,
@@ -11,7 +11,6 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Icon,
-  Input,
 } from '@chakra-ui/core';
 import {
   BrowserRouter,
@@ -20,6 +19,7 @@ import {
   RouteComponentProps,
 } from 'react-router-dom';
 import { useGame } from './Game';
+import { ActionTypes, Player } from '@banter/api';
 
 function App() {
   return (
@@ -71,10 +71,33 @@ function HomePage() {
 
 function GamePage(props: RouteComponentProps<{ gameId: string }>) {
   const { gameId } = props.match.params;
+  const player: Player = useMemo(
+    () => ({
+      playerName: String(Math.random() * 10000),
+    }),
+    [],
+  );
 
-  const [gameState, gameDispatch] = useGame(gameId);
+  const [game, dispatch] = useGame();
 
-  return <h1>{gameState.type}</h1>;
+  if (!game.players.some((p) => p.playerName === player.playerName)) {
+    dispatch({
+      type: ActionTypes.JoinGame,
+      gameId,
+      player,
+    });
+  }
+
+  console.log(game);
+
+  return (
+    <>
+      <h1>{game.status}</h1>
+      <pre>
+        <code>{JSON.stringify(game, null, 2)}</code>
+      </pre>
+    </>
+  );
 }
 
 function PageWrapper(props: PropsWithChildren<{}>) {

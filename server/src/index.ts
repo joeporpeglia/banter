@@ -1,46 +1,56 @@
 import io from 'socket.io';
-import { Actions, Player, Prompt, JoinGame } from '@banter/api';
-import * as Game from './Game';
-
+import { ActionTypes, Games, JoinGame, GameAction, Prompt } from '@banter/api';
 const port = process.env.PORT || 8080;
 const ioServer = io(port);
 
 // Player connects to the server.
 ioServer.on('connection', (playerSocket) => {
   // Player joins a game.
-  playerSocket.on(Actions.JoinGame, (joinGame: JoinGame) => {
-    const { gameId, playerName } = joinGame;
+  playerSocket.on(ActionTypes.JoinGame, (joinGame: JoinGame) => {
+    const { gameId, player } = joinGame;
 
     // Add player to the game "room" (namespaced dispatch channel).
     // See dispatcher below.
     playerSocket.join(gameId);
 
     const dispatcher = {
-      all: ioServer.to(gameId),
-      player: playerSocket,
-      others: playerSocket.broadcast.to(gameId),
+      all(action: GameAction) {
+        ioServer.to(gameId).emit(action.type, action);
+      },
+      player(action: GameAction) {
+        playerSocket.emit(action.type, action);
+      },
+      others(action: GameAction) {
+        playerSocket.broadcast.to(gameId).emit(action.type, action);
+      },
     };
 
-    // Initialize the player and game.
-    const player: Player = { playerName };
-    const game = Game.getOrCreate(gameId);
-
-    // Add player to game object.
-    Game.addPlayer(game, player);
+    // Initialize the game and add the player.
+    const game = Games.getOrCreate(gameId);
+    Games.addPlayer(game, player);
 
     // Notify clients.
-    dispatcher.player.emit(Actions.LoadGame, Game.viewForPlayer(game, player));
-    dispatcher.others.emit(Actions.PlayerJoined, player);
+    dispatcher.player({
+      type: ActionTypes.LoadGame,
+      view: Games.viewForPlayer(game, player),
+    });
+    dispatcher.others({
+      type: ActionTypes.PlayerJoined,
+      player,
+    });
 
     // Wait for prompts.
-    playerSocket.on(Actions.AddPrompt, (prompt: Prompt) => {
-      Game.addPrompt(game, prompt);
+    playerSocket.on(ActionTypes.AddPrompt, (prompt: Prompt) => {
+      Games.addPrompt(game, prompt);
     });
 
     // Wait for player disconnect.
     playerSocket.on('disconnect', () => {
-      Game.removePlayer(game, player);
-      dispatcher.others.emit(Actions.PlayerLeft, player);
+      Games.removePlayer(game, player);
+      dispatcher.others({
+        type: ActionTypes.PlayerLeft,
+        player,
+      });
     });
   });
 });

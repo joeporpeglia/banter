@@ -13,8 +13,15 @@
       "**/*"
     ]
   },
+  "scripts": {
+    "start": "concurrently \"yarn workspace @banter/api start\" \"yarn workspace @banter/server start\" \"yarn workspace @banter/client start\""
+  },
   "prettier": {
     "trailingComma": "all",
     "singleQuote": true
+  },
+  "devDependencies": {
+    "concurrently": "^5.1.0",
+    "typescript": "^3.8.3"
   }
 }

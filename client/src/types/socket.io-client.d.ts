@@ -1,10 +1,9 @@
 declare module 'socket.io-client' {
-  export type Socket<MessageType> = {
-    emit(tag: 'namespace', msg: string): Socket;
-    emit(tag: string, msg: MessageType): Socket;
-    on(tag: string, callback: (msg: MessageType) => void): Socket;
+  export type Socket = {
+    emit(type: string, msg: any): Socket;
+    on(type: string, callback: (msg: any) => void): Socket;
     close(): void;
   };
 
-  export default function IO<MessageType>(host?: string): Socket<MessageType>;
+  export default function IO(host?: string): Socket;
 }
