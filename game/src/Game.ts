@@ -2,6 +2,7 @@ import { Player } from './Player';
 
 export type Prompt = {
   promptId: string;
+  text: string;
 };
 
 export type Lobby = {

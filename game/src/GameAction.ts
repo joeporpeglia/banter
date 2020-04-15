@@ -1,5 +1,6 @@
 import { PlayerView } from './PlayerView';
 import { Player } from './Player';
+import { Prompt } from './Game';
 
 export enum ActionTypes {
   JoinGame = 'JoinGame',
@@ -32,4 +33,19 @@ export type LoadGame = {
   view: PlayerView;
 };
 
-export type GameAction = JoinGame | PlayerJoined | PlayerLeft | LoadGame;
+export type AddPrompt = {
+  type: ActionTypes.AddPrompt;
+  prompt: Prompt;
+};
+
+export type PromptAdded = {
+  type: ActionTypes.PromptAdded;
+};
+
+export type GameAction =
+  | JoinGame
+  | PlayerJoined
+  | PlayerLeft
+  | LoadGame
+  | AddPrompt
+  | PromptAdded;

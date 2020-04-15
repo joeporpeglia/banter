@@ -1,5 +1,12 @@
 import io from 'socket.io';
-import { ActionTypes, Games, JoinGame, GameAction, Prompt } from '@banter/game';
+import {
+  ActionTypes,
+  Games,
+  JoinGame,
+  GameAction,
+  PlayerViews,
+  AddPrompt,
+} from '@banter/game';
 const port = process.env.PORT || 8080;
 const ioServer = io(port);
 
@@ -32,7 +39,7 @@ ioServer.on('connection', (playerSocket) => {
     // Notify clients.
     dispatcher.player({
       type: ActionTypes.LoadGame,
-      view: Games.viewForPlayer(game, player),
+      view: PlayerViews.viewForPlayer(game, player),
     });
     dispatcher.others({
       type: ActionTypes.PlayerJoined,
@@ -40,8 +47,11 @@ ioServer.on('connection', (playerSocket) => {
     });
 
     // Wait for prompts.
-    playerSocket.on(ActionTypes.AddPrompt, (prompt: Prompt) => {
-      Games.addPrompt(game, prompt);
+    playerSocket.on(ActionTypes.AddPrompt, (action: AddPrompt) => {
+      Games.addPrompt(game, action.prompt);
+      dispatcher.others({
+        type: ActionTypes.PromptAdded,
+      });
     });
 
     // Wait for player disconnect.

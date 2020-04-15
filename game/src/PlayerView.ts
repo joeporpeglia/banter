@@ -43,6 +43,12 @@ export const PlayerViews = {
         };
       case ActionTypes.LoadGame:
         return action.view;
+      case ActionTypes.AddPrompt:
+      case ActionTypes.PromptAdded:
+        return {
+          ...prevState,
+          numberOfPrompts: prevState.numberOfPrompts + 1,
+        };
       default:
         return prevState;
     }

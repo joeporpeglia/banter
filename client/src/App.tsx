@@ -1,4 +1,10 @@
-import React, { Suspense, PropsWithChildren, useMemo } from 'react';
+import React, {
+  Suspense,
+  PropsWithChildren,
+  useMemo,
+  ChangeEvent,
+  useState,
+} from 'react';
 import {
   CSSReset,
   Heading,
@@ -11,6 +17,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   Icon,
+  Textarea,
 } from '@chakra-ui/core';
 import {
   BrowserRouter,
@@ -88,7 +95,7 @@ function GamePage(props: RouteComponentProps<{ gameId: string }>) {
     });
   }
 
-  console.log(game);
+  const [promptText, setPromptText] = useState('');
 
   return (
     <>
@@ -96,6 +103,28 @@ function GamePage(props: RouteComponentProps<{ gameId: string }>) {
       <pre>
         <code>{JSON.stringify(game, null, 2)}</code>
       </pre>
+      <Stack>
+        <Textarea
+          value={promptText}
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+            setPromptText(e.target.value)
+          }
+        />
+        <Button
+          onClick={() => {
+            dispatch({
+              type: ActionTypes.AddPrompt,
+              prompt: {
+                promptId: String(Math.random()),
+                text: promptText,
+              },
+            });
+            setPromptText('');
+          }}
+        >
+          Add prompt
+        </Button>
+      </Stack>
     </>
   );
 }
