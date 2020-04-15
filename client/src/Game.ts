@@ -1,6 +1,6 @@
-import { useReducer, useEffect, useMemo, Dispatch } from 'react';
-import io, { Socket } from 'socket.io-client';
-import { PlayerViews, ActionTypes } from '@banter/game';
+import { useReducer, useEffect, useMemo } from 'react';
+import io from 'socket.io-client';
+import { PlayerViews, ActionTypes, GameAction } from '@banter/game';
 
 const BACKEND_HOST = 'localhost:8080';
 
@@ -12,24 +12,17 @@ export function useGame() {
   });
 
   const socket = useMemo(() => io(BACKEND_HOST), []);
-  const backendDispatch = useBackendDispatch(dispatch, socket);
-  useEffect(() => {
-    Object.keys(ActionTypes).forEach((type) => socket.on(type, dispatch));
-    return () => socket.close();
-  }, [socket]);
-
-  return [playerView, backendDispatch] as const;
-}
-
-function useBackendDispatch<A extends { type: string }>(
-  dispatch: Dispatch<A>,
-  socket: Socket,
-): Dispatch<A> {
-  return useMemo(
-    () => (action: A) => {
+  const dispatchWithServer = useMemo(
+    () => (action: GameAction) => {
       socket.emit(action.type, action);
       dispatch(action);
     },
     [dispatch, socket],
   );
+  useEffect(() => {
+    Object.keys(ActionTypes).forEach((type) => socket.on(type, dispatch));
+    return () => socket.close();
+  }, [socket]);
+
+  return [playerView, dispatchWithServer] as const;
 }
