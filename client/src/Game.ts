@@ -1,11 +1,11 @@
 import { useReducer, useEffect, useMemo, Dispatch } from 'react';
 import io, { Socket } from 'socket.io-client';
-import { updatePlayerView, ActionTypes } from '@banter/game';
+import { PlayerViews, ActionTypes } from '@banter/game';
 
 const BACKEND_HOST = 'localhost:8080';
 
 export function useGame() {
-  const [playerView, dispatch] = useReducer(updatePlayerView, {
+  const [playerView, dispatch] = useReducer(PlayerViews.updateView, {
     status: 'Lobby',
     players: [],
     numberOfPrompts: 0,
