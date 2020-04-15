@@ -19,7 +19,7 @@ import {
   RouteComponentProps,
 } from 'react-router-dom';
 import { useGame } from './Game';
-import { ActionTypes, Player } from '@banter/api';
+import { ActionTypes, Player } from '@banter/game';
 
 function App() {
   return (

@@ -1,6 +1,6 @@
 import { useReducer, useEffect, useMemo, Dispatch } from 'react';
 import io, { Socket } from 'socket.io-client';
-import { updatePlayerView, ActionTypes } from '@banter/api';
+import { updatePlayerView, ActionTypes } from '@banter/game';
 
 const BACKEND_HOST = 'localhost:8080';
 

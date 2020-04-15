@@ -1,5 +1,5 @@
 import io from 'socket.io';
-import { ActionTypes, Games, JoinGame, GameAction, Prompt } from '@banter/api';
+import { ActionTypes, Games, JoinGame, GameAction, Prompt } from '@banter/game';
 const port = process.env.PORT || 8080;
 const ioServer = io(port);
 

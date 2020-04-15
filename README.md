@@ -1,6 +1,6 @@
 # Banter
 
-Monorepo for the Banter server, client, and API definition.
+Monorepo for the Banter server, client, and core game.
 
 ## Notes:
 
