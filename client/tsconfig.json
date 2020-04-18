@@ -15,8 +15,8 @@
       "esnext"
     ],
     "allowJs": true,
-    "skipLibCheck": true,
-    "noEmit": true
+    "noEmit": true,
+    "skipLibCheck": true
   },
   "include": [
     "src/**/*"

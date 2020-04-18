@@ -1,32 +1,37 @@
-import React, {
-  Suspense,
-  PropsWithChildren,
-  useMemo,
-  ChangeEvent,
-  useState,
-} from 'react';
 import {
+  GameAction,
+  GameActions,
+  GameEvents,
+  Player,
+  updatePlayerView,
+  LobbyView,
+} from '@banter/game';
+import {
+  Box,
+  Button,
   CSSReset,
   Heading,
   Spinner,
   Stack,
-  Button,
-  ThemeProvider,
-  Box,
-  Breadcrumb,
-  BreadcrumbItem,
-  BreadcrumbLink,
-  Icon,
   Textarea,
+  ThemeProvider,
 } from '@chakra-ui/core';
+import React, {
+  ChangeEvent,
+  PropsWithChildren,
+  Suspense,
+  useEffect,
+  useMemo,
+  useReducer,
+  useState,
+} from 'react';
 import {
   BrowserRouter,
-  Route,
   Link as RouterLink,
+  Route,
   RouteComponentProps,
 } from 'react-router-dom';
-import { useGame } from './Game';
-import { ActionTypes, Player } from '@banter/game';
+import io from 'socket.io-client';
 
 function App() {
   return (
@@ -42,16 +47,6 @@ function App() {
       </BrowserRouter>
     </ThemeProvider>
   );
-}
-
-function generateGameId() {
-  let gameId = '';
-
-  while (gameId.length < 4) {
-    gameId += ((Math.random() * 16) | 0).toString(16);
-  }
-
-  return gameId;
 }
 
 function HomePage() {
@@ -76,6 +71,16 @@ function HomePage() {
   );
 }
 
+function generateGameId() {
+  let gameId = '';
+
+  while (gameId.length < 4) {
+    gameId += ((Math.random() * 16) | 0).toString(16);
+  }
+
+  return gameId;
+}
+
 function GamePage(props: RouteComponentProps<{ gameId: string }>) {
   const { gameId } = props.match.params;
   const player: Player = useMemo(
@@ -85,21 +90,12 @@ function GamePage(props: RouteComponentProps<{ gameId: string }>) {
     [],
   );
 
-  const [game, dispatch] = useGame();
-
-  if (!game.players.some((p) => p.playerName === player.playerName)) {
-    dispatch({
-      type: ActionTypes.JoinGame,
-      gameId,
-      player,
-    });
-  }
-
+  const [game, dispatch] = useGame(gameId, player);
   const [promptText, setPromptText] = useState('');
+  const isReady = game.playerReadyStatus[player.playerName] ?? false;
 
   return (
-    <>
-      <h1>{game.status}</h1>
+    <PageWrapper>
       <pre>
         <code>{JSON.stringify(game, null, 2)}</code>
       </pre>
@@ -113,7 +109,7 @@ function GamePage(props: RouteComponentProps<{ gameId: string }>) {
         <Button
           onClick={() => {
             dispatch({
-              type: ActionTypes.AddPrompt,
+              type: GameActions.AddPrompt,
               prompt: {
                 promptId: String(Math.random()),
                 text: promptText,
@@ -124,21 +120,79 @@ function GamePage(props: RouteComponentProps<{ gameId: string }>) {
         >
           Add prompt
         </Button>
+        {isReady ? (
+          <Button
+            variant="outline"
+            variantColor="red"
+            onClick={() =>
+              dispatch({
+                type: GameActions.SetReady,
+                isReady: false,
+              })
+            }
+          >
+            Unready
+          </Button>
+        ) : (
+          <Button
+            variant="outline"
+            variantColor="green"
+            onClick={() =>
+              dispatch({
+                type: GameActions.SetReady,
+                isReady: true,
+              })
+            }
+          >
+            Ready
+          </Button>
+        )}
       </Stack>
-    </>
+    </PageWrapper>
   );
+}
+
+const BACKEND_HOST = 'localhost:8080';
+
+export function useGame(gameId: string, player: Player) {
+  const [playerView, dispatch] = useReducer(updatePlayerView, {
+    status: 'Lobby',
+    activePlayerName: '',
+    players: [player],
+    numberOfPrompts: 0,
+    playerReadyStatus: {},
+  } as LobbyView);
+
+  const socket = useMemo(() => io(BACKEND_HOST), []);
+  const dispatchWithServer = useMemo(
+    () => (action: GameAction) => {
+      socket.emit(action.type, action);
+      dispatch(action);
+    },
+    [socket],
+  );
+  useEffect(() => {
+    Object.keys(GameEvents).forEach((type) => socket.on(type, dispatch));
+    return () => {
+      socket.close();
+    };
+  }, [socket]);
+  useEffect(() => {
+    dispatchWithServer({
+      type: GameActions.JoinGame,
+      player,
+      gameId,
+    });
+
+    // TODO dispatch leave game action in effect cleanup
+  }, [dispatchWithServer, gameId, player]);
+
+  return [playerView, dispatchWithServer] as const;
 }
 
 function PageWrapper(props: PropsWithChildren<{}>) {
   return (
     <Stack spacing="8" p="12">
-      <Breadcrumb separator={<Icon name="chevron-right" />}>
-        <BreadcrumbItem>
-          <RouterLink to="/">
-            <BreadcrumbLink as="span">Home</BreadcrumbLink>
-          </RouterLink>
-        </BreadcrumbItem>
-      </Breadcrumb>
       {props.children}
     </Stack>
   );
