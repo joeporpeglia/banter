@@ -34,36 +34,6 @@ export type LobbyView = {
 
 export type PlayerView = LobbyView;
 
-export function viewGame(game: Game, player: Player): PlayerView {
-  switch (game.status) {
-    case 'Lobby':
-      return viewLobby(game, player);
-
-    case 'PlayerTurn':
-    case 'Review':
-      return {} as any;
-  }
-}
-
-function viewLobby(game: Game, player: Player): LobbyView {
-  const lobby = getLobby(game);
-  return {
-    status: 'Lobby',
-    activePlayerName: player.playerName,
-    players: lobby.players,
-    numberOfPrompts: lobby.prompts.length,
-    playerReadyStatus: lobby.playerReadyStatus,
-  };
-}
-
-export function getLobby(game: Game): Lobby {
-  if (game.status !== 'Lobby') {
-    throw new Error();
-  }
-
-  return game;
-}
-
 export enum GameActions {
   JoinGame = 'JoinGame',
   AddPrompt = 'AddPrompt',

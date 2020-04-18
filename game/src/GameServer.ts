@@ -5,11 +5,12 @@ import {
   GameActions,
   GameEventDispatcher,
   GameEvents,
-  getLobby,
   JoinGame,
   Player,
   Prompt,
-  viewGame,
+  LobbyView,
+  PlayerView,
+  Lobby,
 } from './Game';
 
 export type GameSession = {
@@ -88,6 +89,36 @@ function getOrCreate(id: string): Game {
   }
 
   return games[id];
+}
+
+export function viewGame(game: Game, player: Player): PlayerView {
+  switch (game.status) {
+    case 'Lobby':
+      return viewLobby(game, player);
+
+    case 'PlayerTurn':
+    case 'Review':
+      return {} as any;
+  }
+}
+
+function viewLobby(game: Game, player: Player): LobbyView {
+  const lobby = getLobby(game);
+  return {
+    status: 'Lobby',
+    activePlayerName: player.playerName,
+    players: lobby.players,
+    numberOfPrompts: lobby.prompts.length,
+    playerReadyStatus: lobby.playerReadyStatus,
+  };
+}
+
+export function getLobby(game: Game): Lobby {
+  if (game.status !== 'Lobby') {
+    throw new Error();
+  }
+
+  return game;
 }
 
 function addPlayer(game: Game, player: Player): void {

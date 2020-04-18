@@ -1,6 +1,14 @@
 # Banter
 
-Monorepo for the Banter server, client, and core game.
+A multiplayer game without any rules or objectives yet..
+
+## Project setup
+
+1. Install `yarn` and VS Code.
+2. Open the root folder in your terminal
+3. Run `yarn`
+4. Run `code banter.code-workspace`
+5. Run `yarn start` - should display output from all 3 workspaces as they compile
 
 ## Notes:
 
