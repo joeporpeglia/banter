@@ -17,3 +17,5 @@ A multiplayer game without any rules or objectives yet..
 - TODO: Build a Docker image and host on DigitalOcean.
 - TODO: NGINX reverse proxy for node server.
 - TODO: server client from NGINX server?
+
+Dan was here
