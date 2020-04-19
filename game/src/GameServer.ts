@@ -59,7 +59,7 @@ export function createSession(
           setPlayerReady(game, player, action.isReady);
           dispatcher.others({
             type: GameEvents.PlayerReadyChanged,
-            playerName: player.playerName,
+            playerId: player.playerId,
             isReady: action.isReady,
           });
           break;
@@ -106,7 +106,7 @@ function viewLobby(game: Game, player: Player): LobbyView {
   const lobby = getLobby(game);
   return {
     status: 'Lobby',
-    activePlayerName: player.playerName,
+    activePlayerId: player.playerId,
     players: lobby.players,
     numberOfPrompts: lobby.prompts.length,
     playerReadyStatus: lobby.playerReadyStatus,
@@ -142,5 +142,5 @@ function removePrompt(game: Game, promptId: string): void {
 
 function setPlayerReady(game: Game, player: Player, isReady: boolean): void {
   const lobby = getLobby(game);
-  lobby.playerReadyStatus[player.playerName] = isReady;
+  lobby.playerReadyStatus[player.playerId] = isReady;
 }

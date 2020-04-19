@@ -1,4 +1,5 @@
 export type Player = {
+  playerId: string;
   playerName: string;
 };
 
@@ -26,7 +27,7 @@ export type Game = Lobby | PlayerTurn | Review;
 
 export type LobbyView = {
   status: 'Lobby';
-  activePlayerName: string;
+  activePlayerId: string;
   players: Player[];
   numberOfPrompts: number;
   playerReadyStatus: Record<string, boolean>;
@@ -39,6 +40,7 @@ export enum GameActions {
   AddPrompt = 'AddPrompt',
   RemovePrompt = 'RemovePrompt',
   SetReady = 'SetReady',
+  QuitGame = 'QuitGame',
 }
 
 export type JoinGame = {
@@ -98,7 +100,7 @@ export type PromptRemoved = {
 
 export type PlayerReadyChanged = {
   type: GameEvents.PlayerReadyChanged;
-  playerName: string;
+  playerId: string;
   isReady: boolean;
 };
 

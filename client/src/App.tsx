@@ -97,18 +97,17 @@ function LoggedOut(props: LoggedOutProps) {
     }
   }, [setPlayer]);
 
-  function handleSave() {
-    if (!name.trim().length) {
+  function handleLogin() {
+    if (name.trim().length === 0) {
       return;
     }
+
     const player: Player = {
+      playerId: String(Math.random()),
       playerName: name,
     };
 
     localStorage.setItem('@banter/saved-player', JSON.stringify(player));
-    setPlayer({
-      playerName: name,
-    });
     setPlayer(player);
   }
 
@@ -125,7 +124,7 @@ function LoggedOut(props: LoggedOutProps) {
           }
         />
       </FormControl>
-      <Button size="lg" variant="solid" onClick={handleSave}>
+      <Button size="lg" variant="solid" onClick={handleLogin}>
         Login
       </Button>
     </PageWrapper>
@@ -173,7 +172,11 @@ function GamePage(props: GamePageProps) {
   const { player, gameId } = props;
   const [game, dispatch] = useGame(gameId, player);
   const [promptText, setPromptText] = useState('');
-  const isReady = game.playerReadyStatus[player.playerName] ?? false;
+  const isCurrentPlayerReady = game.playerReadyStatus[player.playerId] ?? false;
+
+  const areAllPlayersReady = game.players.every(
+    (p) => game.playerReadyStatus[p.playerId],
+  );
 
   return (
     <PageWrapper>
@@ -211,15 +214,16 @@ function GamePage(props: GamePageProps) {
             id="player-ready"
             size="lg"
             color="green"
-            isChecked={isReady}
+            isChecked={isCurrentPlayerReady}
             onChange={() =>
               dispatch({
                 type: GameActions.SetReady,
-                isReady: !isReady,
+                isReady: !isCurrentPlayerReady,
               })
             }
           />
         </Flex>
+        {areAllPlayersReady ? <Button>Start game</Button> : null}
       </Stack>
     </PageWrapper>
   );
@@ -230,7 +234,7 @@ const BACKEND_HOST = 'localhost:8080';
 export function useGame(gameId: string, player: Player) {
   const [playerView, dispatch] = useReducer(updatePlayerView, {
     status: 'Lobby',
-    activePlayerName: '',
+    activePlayerId: player.playerId,
     players: [player],
     numberOfPrompts: 0,
     playerReadyStatus: {},

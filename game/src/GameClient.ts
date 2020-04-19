@@ -22,7 +22,7 @@ export function updatePlayerView(
       return {
         ...playerView,
         players: playerView.players.filter(
-          (p) => p.playerName !== action.player.playerName,
+          (p) => p.playerId !== action.player.playerId,
         ),
       };
     case GameEvents.GameJoined:
@@ -49,8 +49,8 @@ export function updatePlayerView(
         playerReadyStatus: {
           ...playerView.playerReadyStatus,
           [action.type === GameActions.SetReady
-            ? playerView.activePlayerName
-            : action.playerName]: action.isReady,
+            ? playerView.activePlayerId
+            : action.playerId]: action.isReady,
         },
       };
 
