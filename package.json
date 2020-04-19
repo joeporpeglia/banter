@@ -14,7 +14,10 @@
     ]
   },
   "scripts": {
-    "start": "concurrently \"yarn workspace @banter/game start\" \"yarn workspace @banter/server start\" \"yarn workspace @banter/client start\""
+    "start-game": "yarn workspace @banter/game start",
+    "start-client": "yarn workspace @banter/client start",
+    "start-server": "yarn workspace @banter/server start",
+    "start": "concurrently \"yarn:start-*\""
   },
   "prettier": {
     "trailingComma": "all",
